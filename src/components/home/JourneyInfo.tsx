@@ -1,12 +1,11 @@
 import { useJourneyStore } from "@/store/journeyStore";
 import { useTrainStore } from "@/store/trainStore";
-import { Alert } from "@heroui/alert";
-import { Card, CardBody, CardFooter, CardHeader } from "@heroui/card";
+import { Card, CardBody, CardHeader } from "@heroui/card";
 
 export default function JourneyInfo() {
   const journeyDate = useJourneyStore((state) => state.journeyDate);
   const formattedJuourneyDate = useJourneyStore(
-    (state) => state.formattedJuourneyDate
+    (state) => state.formattedJourneyDate,
   );
   const originStation = useJourneyStore((state) => state.originStation);
   const destinationStation = useJourneyStore(
@@ -25,14 +24,10 @@ export default function JourneyInfo() {
             <li>Origin : {originStation}</li>
             <li>Destination : {destinationStation}</li>
             <li className="text-green-600 font-bold">{userTrainName}</li>
-            <li className="sm:col-span-2">{journeyDate} <span>{(!journeyDate && !formattedJuourneyDate) || ' <->'}</span> {formattedJuourneyDate}</li>
+            <li className="sm:col-span-2">{formattedJuourneyDate} <span>{(!journeyDate && !formattedJuourneyDate) || ' <->'}</span> {journeyDate}</li>
             
         </ul>
         </CardBody>
-        {
-          (originStation && destinationStation) && (originStation === destinationStation) && <CardFooter>
-            <Alert color="warning">Origin and Destination must be different!</Alert>
-        </CardFooter>}
       </Card>
   );
 }
