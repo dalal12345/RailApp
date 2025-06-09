@@ -22,7 +22,7 @@ export default function MatrixBox() {
   }, [routeList]);
 
   return (
-    <div className="p-2 md:p-4 max-w-[85vw] mx-auto">
+    <div className="p-2 md:p-4 max-w-[85vw] mx-auto cursor-pointer">
       {isLoading ? (
         <div className="text-center py-6 text-gray-500 flex items-center justify-center gap-2">
           <Spinner />
@@ -68,7 +68,7 @@ export default function MatrixBox() {
                     )}
                     title={routeList[i]}
                   >
-                    {routeList[i].replace(/_/g, " ")}
+                    {routeList[i]}
                   </td>
                   {row.map((cell, j) => (
                     <td

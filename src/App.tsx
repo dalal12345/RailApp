@@ -27,6 +27,7 @@ function App() {
   const setFormattedTrainList = useJourneyStore(
     (state) => state.setFormattedTrainList
   );
+
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "dark") setDark(true);
@@ -42,31 +43,52 @@ function App() {
       localStorage.setItem("theme", "light");
     }
 
-    // Load Station List...
     const items = stationList.map((station: string, index: number) => ({
       key: index,
       label: station,
     }));
     setOriginStationList(items);
     setDestinationStationList(items);
-    const formatedTrainItems =  trainList.map((station: string, index: number) => ({
-      key: index,
-      label: station,
-    }));
+    const formatedTrainItems = trainList.map(
+      (station: string, index: number) => ({
+        key: index,
+        label: station,
+      })
+    );
     setFormattedTrainList(formatedTrainItems);
-  }, [dark, stationList, setOriginStationList, setDestinationStationList,setFormattedTrainList,trainList]);
+  }, [
+    dark,
+    stationList,
+    setOriginStationList,
+    setDestinationStationList,
+    setFormattedTrainList,
+    trainList,
+    detectOS,
+  ]);
+
+  useEffect(() => {
+    const handleContextMenu = (event: MouseEvent) => {
+      event.preventDefault();
+    };
+    document.addEventListener("contextmenu", handleContextMenu);
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu);
+    };
+  }, []);
 
   return (
-    <div className={clsx(
-      "grid min-h-screen  text-black dark:bg-zinc-900 dark:text-white transition-colors",
-      {
-      "pt-10":!isMobileOS,
-      }
-    )}>
+    <div
+      className={clsx(
+        "grid min-h-screen text-black dark:bg-zinc-900 dark:text-white transition-colors select-none",
+        {
+          "pt-10": !isMobileOS,
+        }
+      )}
+    >
       {!isMobileOS && <MenuBar />}
-      {isMobileOS && <MobileMenuBar/>}
+      {isMobileOS && <MobileMenuBar />}
       <Outlet />
-      {!isMobileOS && <Footer/>}
+      {!isMobileOS && <Footer />}
     </div>
   );
 }

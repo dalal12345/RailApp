@@ -96,7 +96,7 @@ export const useMatrixStore = create<MatrixStore>((set, get) => ({
                   title: "Seat Available",
                   description: `Seats found for route ${from} -> ${to}`,
                   color: "success",
-                  timeout: 100,
+                  timeout: 30,
                 });
               }
             })
@@ -106,7 +106,7 @@ export const useMatrixStore = create<MatrixStore>((set, get) => ({
                 title: "Failed for this route",
                 description: `Error fetching ${from} -> ${to}:`,
                 color: "warning",
-                timeout: 2000,
+                timeout: 1000,
               });
             });
 

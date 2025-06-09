@@ -2,6 +2,7 @@ import DummyMatrixBox from "@/components/home/DummyMatrixBox";
 import MatrixBox from "@/components/home/MatrixBox";
 import TicketNotFound from "@/components/home/TicketNotFound";
 import TicketNumber from "@/components/home/TicketNumber";
+import TrainDetails from "@/components/home/TrainDetails";
 import TrainForm from "@/components/home/TrainForm";
 import UserIsReadyToFindTicket from "@/components/home/UserIsReadyToFindTicket";
 import { useJourneyStore } from "@/store/journeyStore";
@@ -25,6 +26,7 @@ export default function Home() {
   return (
     <div className="p-4  grid justify-items-center gap-2">
       <TrainForm />
+     { <TrainDetails/>}
       {journeyDate && userTrainName && <UserIsReadyToFindTicket />}
       {showTicketNotFoundBox && <TicketNotFound />}
       {dummyMatrixVisible && <DummyMatrixBox />}

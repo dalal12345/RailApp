@@ -8,6 +8,7 @@ import { fetch } from "@tauri-apps/plugin-http";
 import { addToast } from "@heroui/react";
 import isOnline from "is-online";
 import { isEmpty } from "lodash";
+import { TrainInformation } from "@/interface/TrainInfo";
 
 type UserTrainStore = {
   userTrainList: string[] | [];
@@ -21,6 +22,8 @@ type UserTrainStore = {
   userTrainRouteInformationList: UserTrainRouteInformationList | [];
   hasTrainBeenSearchedOnce: boolean;
   isTrainFetchingLoading: boolean;
+  trainInformaton: TrainInformation | null;
+  setTrainInformation: (trInfo: TrainInformation | null) => void;
 
   setUserTrainRouteInformationList: (
     userTrainRouteInformation: UserTrainRouteInformation[] | []
@@ -31,9 +34,23 @@ type UserTrainStore = {
   fetchUserTrainInformation: () => void;
   extractTrainModel: (train: string) => void;
   validateAndFetchTrain: () => void;
+  showRouteInformation: boolean;
+  setShowRouteInformation: (status: boolean) => void;
 };
 
 export const useTrainStore = create<UserTrainStore>((set, get) => ({
+  setTrainInformation: (trInfo: TrainInformation | null) =>
+    set({
+      trainInformaton: trInfo,
+    }),
+
+  trainInformaton: null,
+
+  showRouteInformation: false,
+
+  setShowRouteInformation: (status: boolean) =>
+    set({ showRouteInformation: status }),
+
   userTrainList: [],
 
   userTrainModel: null,
@@ -80,7 +97,7 @@ export const useTrainStore = create<UserTrainStore>((set, get) => ({
           title: "Request successfull",
           description: "Request is sent without any error",
           color: "success",
-          timeout: 2000,
+          timeout: 1000,
         });
 
         let responseObject = await response.json();
@@ -93,14 +110,14 @@ export const useTrainStore = create<UserTrainStore>((set, get) => ({
             title: "No train found",
             description: "No train is found in your route.....",
             color: "warning",
-            timeout: 2000,
+            timeout: 1000,
           });
         } else {
           addToast({
             title: "Congrats",
             description: "Train is available for this route",
             color: "success",
-            timeout: 2000,
+            timeout: 1000,
           });
         }
 
@@ -110,7 +127,7 @@ export const useTrainStore = create<UserTrainStore>((set, get) => ({
           title: "Request not successfull",
           description: "Request is not sent to server",
           color: "danger",
-          timeout: 2000,
+          timeout: 1000,
         });
       }
     } catch (e: any) {
@@ -118,7 +135,7 @@ export const useTrainStore = create<UserTrainStore>((set, get) => ({
         title: "Request error",
         description: e.toString(),
         color: "danger",
-        timeout: 2000,
+        timeout: 1000,
       });
     } finally {
       const setIsTrainFetchingLoading = get().setIsTrainFetchingLoading;
@@ -128,12 +145,10 @@ export const useTrainStore = create<UserTrainStore>((set, get) => ({
 
   fetchUserTrainInformation: async () => {
     try {
-      console.log("Started");
       const trainStore = get();
       const journeyStore = useJourneyStore.getState();
       const userTrainModel = trainStore.userTrainModel;
       const journeyDate = journeyStore.journeyDate;
-      console.log("Reached 1");
       const response = await fetch(
         "https://railspaapi.shohoz.com/v1.0/web/train-routes",
         {
@@ -148,8 +163,6 @@ export const useTrainStore = create<UserTrainStore>((set, get) => ({
         }
       );
 
-      console.log(response);
-
       if (response.status === 200) {
         addToast({
           title: "Ticket Request",
@@ -158,21 +171,20 @@ export const useTrainStore = create<UserTrainStore>((set, get) => ({
           timeout: 1000,
         });
         const routeDataObject = await response.json();
+        trainStore.setTrainInformation(routeDataObject.data);
 
-        console.log(routeDataObject);
         set({ userTrainRouteInformationList: routeDataObject!.data!.routes });
         if (!routeDataObject?.data?.routes) return;
         const cityList = routeDataObject.data.routes.map(
           (route: { city: any }) => route.city
         );
         set({ routeList: cityList });
-        console.log(cityList);
       } else {
         addToast({
           title: "Request Error",
           description: "Check if train name, date  is ok...or try again...",
           color: "warning",
-          timeout: 2000,
+          timeout: 1000,
         });
       }
     } catch (error) {
@@ -181,14 +193,14 @@ export const useTrainStore = create<UserTrainStore>((set, get) => ({
           title: "Check Internet connection",
           description: "Check if internet connection is ok...",
           color: "danger",
-          timeout: 2000,
+          timeout: 1000,
         });
       } else {
         addToast({
           title: "Error occurred",
           description: "Try again...",
           color: "danger",
-          timeout: 2000,
+          timeout: 1000,
         });
       }
     }
@@ -225,14 +237,13 @@ export const useTrainStore = create<UserTrainStore>((set, get) => ({
         title: "Internet Error",
         description: `Check if internet connection is ok`,
         color: "danger",
-        timeout: 2000,
+        timeout: 1000,
       });
 
       return;
     }
 
     if (isJourneyInfoValid) {
-      console.log("Yes ready Fetching");
       setUserTrainName(null);
       setUserTrainList([]);
       setIsTrainFetchingLoading(true);
@@ -242,7 +253,7 @@ export const useTrainStore = create<UserTrainStore>((set, get) => ({
         title: "Request sent",
         description: `Trying to fetch train list`,
         color: "primary",
-        timeout: 2000,
+        timeout: 1000,
       });
 
       fetchUserTrainList();
@@ -251,7 +262,7 @@ export const useTrainStore = create<UserTrainStore>((set, get) => ({
         title: "Invalid Journey Info",
         description: "Fix journey information correctly....",
         color: "danger",
-        timeout: 2000,
+        timeout: 1000,
       });
       setHasTrainBeenSearchedOnce(false);
     }
