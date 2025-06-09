@@ -2,7 +2,7 @@ import { FaGithub } from "react-icons/fa";
 
 export default function Footer() {
   return (
-    <div className="mt-10 w-full p-4">
+    <div className="mt-0 w-full p-4">
       <ul className="grid justify-self-center self-center w-full justify-items-center">
         <li className="grid cursor-pointer">
           <a

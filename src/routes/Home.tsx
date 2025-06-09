@@ -10,8 +10,6 @@ import { useTrainStore } from "@/store/trainStore";
 import { useEffect } from "react";
 
 export default function Home() {
-  // useMatrixStore((state)=>state.ticketFound);
-  let ticketFound = useMatrixStore((state) => state.ticketFound);
   let showTicketFoundBox = useMatrixStore((state) => state.showTicketFoundBox);
   let showTicketNotFoundBox = useMatrixStore((state) => state.showTicketNotFoundBox);
 

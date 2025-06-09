@@ -35,14 +35,14 @@ export default function JourneyInfo() {
             </div>
           )}
 
-          <div className="grid sm:grid-cols-2 sm:col-span-2 gap-4">
+         {(originStation || destinationStation ) && <div className="grid sm:grid-cols-2 sm:col-span-2 gap-4">
             <div className="grid justify-items-stretch grid-cols-2">
               <PersonStanding /> {originStation}
             </div>
             <p className="grid justify-items-stretch grid-cols-2">
               <MapPin /> {destinationStation}
             </p>
-          </div>
+          </div>}
         </div>
       </CardBody>
     </Card>

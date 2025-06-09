@@ -25,9 +25,13 @@ interface JourneyState {
   setFormattedTrainList: (list: any) => void;
   pickedDate: DateValue | null;
   setPickedDate: (date: DateValue | null) => void;
+  showProperJourneyInformationAlert :boolean;
+  setShowProperJourneyInformationAlert:(status:boolean)=>void;
 }
 
 export const useJourneyStore = create<JourneyState>((set, get) => ({
+  showProperJourneyInformationAlert :false,
+  setShowProperJourneyInformationAlert:(status:boolean)=>set({showProperJourneyInformationAlert:status}),
   pickedDate: null,
   setPickedDate: (date: DateValue | null) => set({ pickedDate: date }),
   journeyDate: null,

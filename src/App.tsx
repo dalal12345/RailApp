@@ -66,7 +66,7 @@ function App() {
       {!isMobileOS && <MenuBar />}
       {isMobileOS && <MobileMenuBar/>}
       <Outlet />
-      <Footer/>
+      {!isMobileOS && <Footer/>}
     </div>
   );
 }

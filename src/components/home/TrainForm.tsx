@@ -11,36 +11,26 @@ import LoaderComponent from "./LoaderComponent";
 import { useJourneyStore } from "@/store/journeyStore";
 import MannualTrainSelection from "./MannualTrainSelection";
 import OnlyTrainSelectionError from "./OnlyTrainSelectionError";
+import clsx from "clsx";
+import ProperJourneyInformationAlert from "./ProperJourneyInformationAlert";
 
 export default function TrainForm() {
-  const fetchUserTrainList = useTrainStore((state) => state.fetchUserTrainList);
-
   const userTrainList = useTrainStore((state) => state.userTrainList);
-
-  const setUserTrainList = useTrainStore((state) => state.setUserTrainList);
-
-  const setHasTrainBeenSearchedOnce = useTrainStore(
-    (state) => state.setHasTrainBeenSearchedOnce
-  );
 
   const hasTrainBeenSearchedOnce = useTrainStore(
     (state) => state.hasTrainBeenSearchedOnce
-  );
-
-  const setIsTrainFetchingLoading = useTrainStore(
-    (state) => state.setIsTrainFetchingLoading
   );
 
   const isTrainFetchingLoading = useTrainStore(
     (state) => state.isTrainFetchingLoading
   );
 
-  const isReadyToFetchUserTrainList = useJourneyStore(
-    (state) => state.isReadyToFetchUserTrainList
+  const setShowProperJourneyInformationAlert = useJourneyStore(
+    (state) => state.setShowProperJourneyInformationAlert
   );
 
-  const setIsReadyToFetchUserTrainList = useJourneyStore(
-    (state) => state.setIsReadyToFetchUserTrainList
+  const showProperJourneyInformationAlert = useJourneyStore(
+    (state) => state.showProperJourneyInformationAlert
   );
 
   const journeyDate = useJourneyStore((state) => state.journeyDate);
@@ -51,12 +41,14 @@ export default function TrainForm() {
     (state) => state.destinationStation
   );
 
-  const setUserTrainName = useTrainStore((state) => state.setUserTrainName);
-
   const userTrainName = useTrainStore((state) => state.userTrainName);
 
   const fetchUserTrainInformation = useTrainStore(
     (state) => state.fetchUserTrainInformation
+  );
+
+  const validateAndFetchTrain = useTrainStore(
+    (state) => state.validateAndFetchTrain
   );
 
   return (
@@ -69,41 +61,19 @@ export default function TrainForm() {
         color="primary"
         className="p-7 font-bold w-2/3 "
         onPress={() => {
-          let ready = false;
-          setUserTrainName(null);
-          if (
-            journeyDate &&
-            originStation &&
-            destinationStation &&
-            originStation !== destinationStation
-          ) {
-            ready = true;
-            setIsReadyToFetchUserTrainList(ready);
-          } else {
-            ready = false;
-            setIsReadyToFetchUserTrainList(ready);
-          }
-          console.log(isReadyToFetchUserTrainList);
-          if (ready) {
-            console.log("Yes ready Fetching");
-            setUserTrainList([]);
-            setIsTrainFetchingLoading(true);
-            fetchUserTrainList();
-            setHasTrainBeenSearchedOnce(true);
-            setIsReadyToFetchUserTrainList(true);
-          } else {
-            console.log("Not Ready ready to fetch");
-            setHasTrainBeenSearchedOnce(false);
-          }
+          validateAndFetchTrain();
         }}
       >
         Find Trains
       </Button>
       {!isEmpty(userTrainList) && <UserTrainListComponent />}
+
       {!isTrainFetchingLoading &&
         hasTrainBeenSearchedOnce &&
         isEmpty(userTrainList) && <UserTrainListEmptyAlert />}
+
       {isTrainFetchingLoading && <LoaderComponent />}
+
       {originStation &&
         destinationStation &&
         originStation === destinationStation && (
@@ -115,45 +85,60 @@ export default function TrainForm() {
           </Alert>
         )}
 
-      {/* {!isReadyToFetchUserTrainList &&
-        (!journeyDate || !originStation || !destinationStation) && (
-          <ProperJourneyInformationAlert />
-        )} */}
+      {showProperJourneyInformationAlert && <ProperJourneyInformationAlert />}
 
-      {(journeyDate || userTrainName || originStation || destinationStation) &&  <JourneyInfo />}
+      {(journeyDate ||
+        userTrainName ||
+        originStation ||
+        destinationStation) && <JourneyInfo />}
 
       {userTrainName && !journeyDate && <OnlyTrainSelectionError />}
+
       <div className="mt-4 gap-4 w-full grid sm:grid-cols-2 sm:col-span-2">
         <MannualTrainSelection />
         <DatePickerComponent />
       </div>
 
-      <div className="grid mt-4 gap-4 sm:col-span-2 sm:grid-cols-2">
+      <div
+        className={clsx(
+          "grid mt-4 gap-4 sm:col-span-2 sm:grid-cols-2 w-full",
+          {}
+        )}
+      >
         {!userTrainName && (
           <Alert color="success">
             Select your train from this dropdown menu if you haven't found one
             yet
           </Alert>
         )}
+
         {
-          <Button
-            className="self-center justify-self-center  p-7 font-bold w-2/3 "
-            color="primary"
-            onPress={() => {
-              if (userTrainName && journeyDate) {
-                fetchUserTrainInformation();
-              } else {
-                addToast({
-                  title: "Date or Train Name error",
-                  description: `Make sure you set both journey date and train name correctly...`,
-                  color: "danger",
-                  timeout: 3000,
-                });
-              }
-            }}
+          <div
+            className={clsx("w-full  grid  items-center content-center p-2", {
+              "sm:col-span-2 w-3/5 justify-self-center": userTrainName,
+            })}
           >
-            Find Tickets
-          </Button>
+            <Button
+              className="self-center justify-self-center  p-7 font-bold w-full bg-red-500 sm:col-span-2"
+              color="primary"
+              onPress={() => {
+                setShowProperJourneyInformationAlert(false);
+
+                if (userTrainName && journeyDate) {
+                  fetchUserTrainInformation();
+                } else {
+                  addToast({
+                    title: "Date or Train Name error",
+                    description: `Make sure you set both journey date and train name correctly...`,
+                    color: "danger",
+                    timeout: 3000,
+                  });
+                }
+              }}
+            >
+              Find Tickets
+            </Button>
+          </div>
         }
       </div>
     </div>

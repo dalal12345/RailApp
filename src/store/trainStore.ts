@@ -7,6 +7,7 @@ import { useJourneyStore } from "./journeyStore";
 import { fetch } from "@tauri-apps/plugin-http";
 import { addToast } from "@heroui/react";
 import isOnline from "is-online";
+import { isEmpty } from "lodash";
 
 type UserTrainStore = {
   userTrainList: string[] | [];
@@ -29,49 +30,102 @@ type UserTrainStore = {
   setIsTrainFetchingLoading: (status: boolean) => void;
   fetchUserTrainInformation: () => void;
   extractTrainModel: (train: string) => void;
+  validateAndFetchTrain: () => void;
 };
 
 export const useTrainStore = create<UserTrainStore>((set, get) => ({
   userTrainList: [],
+
   userTrainModel: null,
+
   userTrainName: null,
+
   routeList: [],
+
   userTrainRouteInformationList: [],
+
   hasTrainBeenSearchedOnce: false,
+
   isTrainFetchingLoading: false,
+
   setIsTrainFetchingLoading: (status: boolean) =>
     set({ isTrainFetchingLoading: status }),
+
   setHasTrainBeenSearchedOnce: (status: boolean) =>
     set({ hasTrainBeenSearchedOnce: status }),
+
   setUserTrainRouteInformationList: (
     userTrainRouteInformation: UserTrainRouteInformation[] | []
   ) => set({ userTrainRouteInformationList: userTrainRouteInformation }),
+
   setUserTrainList: (trainList) => set({ userTrainList: trainList }),
+
   setUserRouteList: (allRoutes) => set({ routeList: allRoutes }),
+
   setUserTrainModel: (model: string | null) => set({ userTrainModel: model }),
+
   setUserTrainName: (name: string | null) =>
     set({
       userTrainName: name,
     }),
+
   fetchUserTrainList: async () => {
     try {
       const journeyStore = useJourneyStore.getState();
 
       const tempUrl = `https://railspaapi.shohoz.com/v1.0/web/bookings/search-trips-v2?from_city=${journeyStore.originStation}&to_city=${journeyStore.destinationStation}&date_of_journey=${journeyStore.formattedJourneyDate}&seat_class=SHULOV`;
       let response = await fetch(tempUrl);
-      let responseObject = await response.json();
-      let trains = responseObject!.data!.trains.map((train: any) =>
-        train!.trip_number.trim()
-      );
-      console.log(trains);
-      set({ userTrainList: trains });
+      if (response.status === 200) {
+        addToast({
+          title: "Request successfull",
+          description: "Request is sent without any error",
+          color: "success",
+          timeout: 2000,
+        });
+
+        let responseObject = await response.json();
+        let trains = responseObject!.data!.trains.map((train: any) =>
+          train!.trip_number.trim()
+        );
+
+        if (isEmpty(trains)) {
+          addToast({
+            title: "No train found",
+            description: "No train is found in your route.....",
+            color: "warning",
+            timeout: 2000,
+          });
+        } else {
+          addToast({
+            title: "Congrats",
+            description: "Train is available for this route",
+            color: "success",
+            timeout: 2000,
+          });
+        }
+
+        set({ userTrainList: trains });
+      } else {
+        addToast({
+          title: "Request not successfull",
+          description: "Request is not sent to server",
+          color: "danger",
+          timeout: 2000,
+        });
+      }
     } catch (e: any) {
-      console.log(e);
+      addToast({
+        title: "Request error",
+        description: e.toString(),
+        color: "danger",
+        timeout: 2000,
+      });
     } finally {
       const setIsTrainFetchingLoading = get().setIsTrainFetchingLoading;
       setIsTrainFetchingLoading(false);
     }
   },
+
   fetchUserTrainInformation: async () => {
     try {
       console.log("Started");
@@ -101,7 +155,7 @@ export const useTrainStore = create<UserTrainStore>((set, get) => ({
           title: "Ticket Request",
           description: "Request sent successfully",
           color: "primary",
-          timeout:1000,
+          timeout: 1000,
         });
         const routeDataObject = await response.json();
 
@@ -116,9 +170,9 @@ export const useTrainStore = create<UserTrainStore>((set, get) => ({
       } else {
         addToast({
           title: "Request Error",
-          description:
-            "Check if train name, date  is ok...or try again...",
+          description: "Check if train name, date  is ok...or try again...",
           color: "warning",
+          timeout: 2000,
         });
       }
     } catch (error) {
@@ -127,12 +181,14 @@ export const useTrainStore = create<UserTrainStore>((set, get) => ({
           title: "Check Internet connection",
           description: "Check if internet connection is ok...",
           color: "danger",
+          timeout: 2000,
         });
       } else {
         addToast({
           title: "Error occurred",
           description: "Try again...",
           color: "danger",
+          timeout: 2000,
         });
       }
     }
@@ -141,5 +197,63 @@ export const useTrainStore = create<UserTrainStore>((set, get) => ({
     let match = train.match(/\((\d+)\)/);
     let numberString = match![1];
     set({ userTrainModel: numberString });
+  },
+  validateAndFetchTrain: async () => {
+    const journeyStore = useJourneyStore.getState();
+    const trainStore = get();
+    const journeyDate = journeyStore.journeyDate;
+    const originStation = journeyStore.originStation;
+    const destinationStation = journeyStore.destinationStation;
+    const setHasTrainBeenSearchedOnce = trainStore.setHasTrainBeenSearchedOnce;
+    const setUserTrainName = trainStore.setUserTrainName;
+    const setUserTrainList = trainStore.setUserTrainList;
+    const setIsTrainFetchingLoading = trainStore.setIsTrainFetchingLoading;
+    const fetchUserTrainList = trainStore.fetchUserTrainList;
+    const setShowProperJourneyInformationAlert =
+      journeyStore.setShowProperJourneyInformationAlert;
+    const setIsReadyToFetchUserTrainList =
+      journeyStore.setIsReadyToFetchUserTrainList;
+
+    const isJourneyInfoValid =
+      (journeyDate && originStation && destinationStation && originStation) !==
+      destinationStation;
+    setShowProperJourneyInformationAlert(!isJourneyInfoValid);
+    setIsReadyToFetchUserTrainList(isJourneyInfoValid);
+
+    if (!(await isOnline())) {
+      addToast({
+        title: "Internet Error",
+        description: `Check if internet connection is ok`,
+        color: "danger",
+        timeout: 2000,
+      });
+
+      return;
+    }
+
+    if (isJourneyInfoValid) {
+      console.log("Yes ready Fetching");
+      setUserTrainName(null);
+      setUserTrainList([]);
+      setIsTrainFetchingLoading(true);
+      setHasTrainBeenSearchedOnce(true);
+
+      addToast({
+        title: "Request sent",
+        description: `Trying to fetch train list`,
+        color: "primary",
+        timeout: 2000,
+      });
+
+      fetchUserTrainList();
+    } else {
+      addToast({
+        title: "Invalid Journey Info",
+        description: "Fix journey information correctly....",
+        color: "danger",
+        timeout: 2000,
+      });
+      setHasTrainBeenSearchedOnce(false);
+    }
   },
 }));
