@@ -5,12 +5,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from "./App";
 import Home from "./routes/Home";
 import About from "./routes/About";
-import { HeroUIProvider } from "@heroui/react";
+import { HeroUIProvider, ToastProvider } from "@heroui/react";
 import "@fontsource-variable/inter";
+import Footer from "./components/global/footer/Footer";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <HeroUIProvider>
+      <ToastProvider/>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />}>

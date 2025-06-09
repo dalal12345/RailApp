@@ -1,9 +1,7 @@
 import { Alert } from "@heroui/alert";
-import { Fragment } from "react/jsx-runtime";
-
 export default function UserTrainListEmptyAlert(){
-    return(<Fragment>
+    return(<div className="sm:col-span-2 grid sm:grid-cols-2 gap-5 mt-4">
         <Alert variant="bordered" color="danger">No Train is found on your route</Alert>
-        <Alert variant="bordered" color="success">But You can manually select your train from dropdown below</Alert>
-    </Fragment>);
+        <Alert variant="bordered" color="success">You can manually select your train from dropdown below</Alert>
+    </div>);
 }

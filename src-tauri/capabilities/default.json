@@ -15,7 +15,7 @@
     "core:window:allow-set-fullscreen",
     "core:window:allow-close",
     "os:default",
-     {
+    {
       "identifier": "http:default",
       "allow": [
         {
@@ -28,5 +28,6 @@
         }
       ]
     }
+    
   ]
 }

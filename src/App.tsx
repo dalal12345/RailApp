@@ -1,13 +1,15 @@
 import { useEffect } from "react";
 import "./App.css";
-import MenuBar from "./components/MenuBar/MenuBar";
+import MenuBar from "./components/global/menubar/MenuBar";
 import useThemeStore from "./store/themeStore";
 import { Outlet } from "react-router-dom";
 import useOsInfoStore from "./store/osInfoStore";
 import { useStationStore } from "./store/stationListStore";
 import { useJourneyStore } from "./store/journeyStore";
 import { useTrainListStore } from "./store/trainListStore";
-import MobileMenuBar from "./components/MenuBar/MobileMenuBar";
+import MobileMenuBar from "./components/global/menubar/MobileMenuBar";
+import clsx from "clsx";
+import Footer from "./components/global/footer/Footer";
 
 function App() {
   const dark = useThemeStore((state) => state.dark);
@@ -55,10 +57,16 @@ function App() {
   }, [dark, stationList, setOriginStationList, setDestinationStationList,setFormattedTrainList,trainList]);
 
   return (
-    <div className="grid min-h-screen  text-black dark:bg-zinc-900 dark:text-white transition-colors pt-10">
+    <div className={clsx(
+      "grid min-h-screen  text-black dark:bg-zinc-900 dark:text-white transition-colors",
+      {
+      "pt-10":!isMobileOS,
+      }
+    )}>
       {!isMobileOS && <MenuBar />}
       {isMobileOS && <MobileMenuBar/>}
       <Outlet />
+      <Footer/>
     </div>
   );
 }

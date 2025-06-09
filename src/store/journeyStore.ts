@@ -19,17 +19,17 @@ interface JourneyState {
   setOriginStationList: (list: any) => void;
   destinationStationList: StationListForDropdown | [];
   setDestinationStationList: (list: any) => void;
-  isReadyToFetchUserTrainList:boolean;
-  setIsReadyToFetchUserTrainList:(status:boolean)=>void;
-  formattedTrainList:StationListForDropdown | [];
-   setFormattedTrainList: (list: any) => void;
-   pickedDate:DateValue|null;
-   setPickedDate:(date:DateValue|null)=>void;
+  isReadyToFetchUserTrainList: boolean;
+  setIsReadyToFetchUserTrainList: (status: boolean) => void;
+  formattedTrainList: StationListForDropdown | [];
+  setFormattedTrainList: (list: any) => void;
+  pickedDate: DateValue | null;
+  setPickedDate: (date: DateValue | null) => void;
 }
 
 export const useJourneyStore = create<JourneyState>((set, get) => ({
-   pickedDate:null,
-   setPickedDate:(date: DateValue | null) => set({ pickedDate: date }),
+  pickedDate: null,
+  setPickedDate: (date: DateValue | null) => set({ pickedDate: date }),
   journeyDate: null,
   setJourneyDate: (date: string | null) => set({ journeyDate: date }),
   formattedJourneyDate: null,
@@ -43,15 +43,16 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
   selectedDate: null,
   seatClass: "SHULOV",
   originStationList: [],
-  isReadyToFetchUserTrainList:false,
-  setIsReadyToFetchUserTrainList:(status:boolean)=>set({isReadyToFetchUserTrainList:status}),
+  isReadyToFetchUserTrainList: false,
+  setIsReadyToFetchUserTrainList: (status: boolean) =>
+    set({ isReadyToFetchUserTrainList: status }),
   setOriginStationList: (originStationList: any) =>
     set({ originStationList: originStationList }),
   destinationStationList: [],
   setDestinationStationList: (destinationStationList: any) =>
     set({ destinationStationList: destinationStationList }),
-   formattedTrainList: [],
-   setFormattedTrainList: (formattedTrainList: any) =>
+  formattedTrainList: [],
+  setFormattedTrainList: (formattedTrainList: any) =>
     set({ formattedTrainList: formattedTrainList }),
   monthList: [
     "Jan",

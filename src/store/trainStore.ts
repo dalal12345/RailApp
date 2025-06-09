@@ -5,6 +5,8 @@ import {
 import { create } from "zustand";
 import { useJourneyStore } from "./journeyStore";
 import { fetch } from "@tauri-apps/plugin-http";
+import { addToast } from "@heroui/react";
+import isOnline from "is-online";
 
 type UserTrainStore = {
   userTrainList: string[] | [];
@@ -95,7 +97,14 @@ export const useTrainStore = create<UserTrainStore>((set, get) => ({
       console.log(response);
 
       if (response.status === 200) {
+        addToast({
+          title: "Ticket Request",
+          description: "Request sent successfully",
+          color: "primary",
+          timeout:1000,
+        });
         const routeDataObject = await response.json();
+
         console.log(routeDataObject);
         set({ userTrainRouteInformationList: routeDataObject!.data!.routes });
         if (!routeDataObject?.data?.routes) return;
@@ -104,14 +113,33 @@ export const useTrainStore = create<UserTrainStore>((set, get) => ({
         );
         set({ routeList: cityList });
         console.log(cityList);
+      } else {
+        addToast({
+          title: "Request Error",
+          description:
+            "Check if train name, date  is ok...or try again...",
+          color: "warning",
+        });
       }
     } catch (error) {
-      console.error("Error fetching tickets:", error);
+      if (!(await isOnline())) {
+        addToast({
+          title: "Check Internet connection",
+          description: "Check if internet connection is ok...",
+          color: "danger",
+        });
+      } else {
+        addToast({
+          title: "Error occurred",
+          description: "Try again...",
+          color: "danger",
+        });
+      }
     }
   },
   extractTrainModel: (train: string) => {
     let match = train.match(/\((\d+)\)/);
     let numberString = match![1];
-    set({userTrainModel:numberString});
+    set({ userTrainModel: numberString });
   },
 }));
