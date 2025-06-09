@@ -7,7 +7,6 @@ import Home from "./routes/Home";
 import About from "./routes/About";
 import { HeroUIProvider, ToastProvider } from "@heroui/react";
 import "@fontsource-variable/inter";
-import Footer from "./components/global/footer/Footer";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
